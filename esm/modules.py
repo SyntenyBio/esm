@@ -127,7 +127,7 @@ class TransformerLayer(nn.Module):
             key=x,
             value=x,
             key_padding_mask=self_attn_padding_mask,
-            need_weights=True,
+            need_weights=False,
             need_head_weights=need_head_weights,
             attn_mask=self_attn_mask,
         )

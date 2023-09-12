@@ -123,9 +123,9 @@ class MultiheadAttention(nn.Module):
         self.reset_parameters()
 
         self.onnx_trace = False
-        self.rot_emb = None
-        if use_rotary_embeddings:
-            self.rot_emb = RotaryEmbedding(dim=self.head_dim)
+
+        self.use_rotary_embeddings = use_rotary_embeddings
+        self.rot_emb = RotaryEmbedding(dim=self.head_dim)
 
         self.enable_torch_version = False
         if hasattr(F, "multi_head_attention_forward"):
@@ -163,7 +163,7 @@ class MultiheadAttention(nn.Module):
         value: Optional[Tensor],
         key_padding_mask: Optional[Tensor] = None,
         incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]] = None,
-        need_weights: bool = True,
+        need_weights: bool = False,
         static_kv: bool = False,
         attn_mask: Optional[Tensor] = None,
         before_softmax: bool = False,
@@ -194,7 +194,7 @@ class MultiheadAttention(nn.Module):
         assert list(query.size()) == [tgt_len, bsz, embed_dim]
 
         if (
-            not self.rot_emb
+            not self.use_rotary_embeddings
             and self.enable_torch_version
             and not self.onnx_trace
             and incremental_state is None
@@ -351,7 +351,7 @@ class MultiheadAttention(nn.Module):
                     dim=1,
                 )
 
-        if self.rot_emb:
+        if self.use_rotary_embeddings:
             q, k = self.rot_emb(q, k)
 
         attn_weights = torch.bmm(q, k.transpose(1, 2))
@@ -395,9 +395,11 @@ class MultiheadAttention(nn.Module):
         attn = self.out_proj(attn)
         attn_weights: Optional[Tensor] = None
         if need_weights:
-            attn_weights = attn_weights_float.view(
-                bsz, self.num_heads, tgt_len, src_len
-            ).type_as(attn).transpose(1, 0)
+            attn_weights = (
+                attn_weights_float.view(bsz, self.num_heads, tgt_len, src_len)
+                .type_as(attn)
+                .transpose(1, 0)
+            )
             if not need_head_weights:
                 # average attention weights over heads
                 attn_weights = attn_weights.mean(dim=0)
