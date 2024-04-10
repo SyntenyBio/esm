@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import math
+import os
 from typing import Optional
 
 import torch
@@ -65,7 +66,7 @@ class ESM1LayerNorm(nn.Module):
         return x
 
 
-try:
+if os.getenv("USE_APEX") == "True":
     from apex.normalization import FusedLayerNorm as _FusedLayerNorm
 
     class ESM1bLayerNorm(_FusedLayerNorm):
@@ -77,7 +78,7 @@ try:
                 with torch.cuda.device(x.device):
                     return super().forward(x)
 
-except ImportError:
+else:
     from torch.nn import LayerNorm as ESM1bLayerNorm
 
 
