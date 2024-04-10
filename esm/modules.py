@@ -68,7 +68,7 @@ class ESM1LayerNorm(nn.Module):
 
 
 if os.getenv("USE_APEX") == "True":
-    logging.warning("Using APEX FusedLayerNorm for ESM1LayerNorm. This may cause issues with mixed precision training.")
+    logging.warning("Using APEX FusedLayerNorm for ESM1LayerNorm. This is known to cause training issues.")
     from apex.normalization import FusedLayerNorm as _FusedLayerNorm
 
     class ESM1bLayerNorm(_FusedLayerNorm):
