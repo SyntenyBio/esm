@@ -3,15 +3,17 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import math
+import os
 from typing import Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .multihead_attention import MultiheadAttention  # noqa
 from .axial_attention import ColumnSelfAttention, RowSelfAttention
+from .multihead_attention import MultiheadAttention  # noqa
 
 
 def gelu(x):
@@ -65,7 +67,8 @@ class ESM1LayerNorm(nn.Module):
         return x
 
 
-try:
+if os.getenv("USE_APEX") == "True":
+    logging.warning("Using APEX FusedLayerNorm for ESM1LayerNorm. This is known to cause training issues.")
     from apex.normalization import FusedLayerNorm as _FusedLayerNorm
 
     class ESM1bLayerNorm(_FusedLayerNorm):
@@ -77,7 +80,7 @@ try:
                 with torch.cuda.device(x.device):
                     return super().forward(x)
 
-except ImportError:
+else:
     from torch.nn import LayerNorm as ESM1bLayerNorm
 
 
