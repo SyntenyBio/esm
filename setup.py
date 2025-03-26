@@ -26,11 +26,11 @@ extras = {
 }
 
 sources = {
-    "esm": "fairesm",
-    "esm.model": "fairesm/model",
-    "esm.inverse_folding": "fairesm/inverse_folding",
-    "esm.esmfold.v1": "fairesm/esmfold/v1",
-    "esm.scripts": "scripts"
+    "fairesm": "esm",
+    "fairesm.model": "esm/model",
+    "fairesm.inverse_folding": "esm/inverse_folding",
+    "fairesm.esmfold.v1": "esm/esmfold/v1",
+    "fairesm.scripts": "scripts"
 }
 
 setup(
