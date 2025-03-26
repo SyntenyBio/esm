@@ -163,10 +163,10 @@ After pip install, you can load and use a pretrained model as follows:
 
 ```python
 import torch
-import esm
+import fairesm
 
 # Load ESM-2 model
-model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
+model, alphabet = fairesm.pretrained.esm2_t33_650M_UR50D()
 batch_converter = alphabet.get_batch_converter()
 model.eval()  # disables dropout for deterministic results
 
@@ -206,9 +206,9 @@ After installing with the `[esmfold]` option, you can use the ESMFold structure 
 
 ```python
 import torch
-import esm
+import fairesm
 
-model = esm.pretrained.esmfold_v1()
+model = fairesm.pretrained.esmfold_v1()
 model = model.eval().cuda()
 
 # Optionally, uncomment to set a chunk size for axial attention. This can help reduce memory.
